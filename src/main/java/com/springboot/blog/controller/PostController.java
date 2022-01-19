@@ -19,7 +19,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    // create blog post
+    // create blog post rest api
     @PostMapping
     public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto) {
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
@@ -31,4 +31,29 @@ public class PostController {
         return postService.allPosts();
     }
 
+    // get post by id rest api
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<PostDto> postById(@PathVariable(name = "id") long id) {
+        return ResponseEntity.ok(postService.postById(id));
+    }
+
+    // update post by id rest api
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<PostDto> updatePostById(@RequestBody PostDto postDto,@PathVariable(name = "id") long id) {
+        return new ResponseEntity<>(postService.updatePostById(postDto, id), HttpStatus.OK);
+    }
+
+    // delete post rest api
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<String> deletePostById(@PathVariable(name = "id") long id) {
+        postService.deletePostById(id);
+        return new ResponseEntity<>("Post with Id: " + id + " deleted successfully", HttpStatus.OK);
+    }
+
+    // delete all posts rest api
+    @DeleteMapping
+    public ResponseEntity<String> deleteAllPosts() {
+        postService.deleteAllPosts();
+        return new ResponseEntity<>("All posts deleted successfully", HttpStatus.OK);
+    }
 }

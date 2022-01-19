@@ -1,6 +1,7 @@
 package com.springboot.blog.service.impl;
 
 import com.springboot.blog.entity.Post;
+import com.springboot.blog.exception.ResourceNotFoundException;
 import com.springboot.blog.payload.PostDto;
 import com.springboot.blog.repository.PostRepository;
 import com.springboot.blog.service.PostService;
@@ -40,6 +41,50 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> allPosts() {
         List<Post> posts = postRepository.findAll();
         return posts.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+    /*
+    This is a service. It should return what it needs to return.
+    I first thought that we need to return ResponseEntity from here, but that's not the case.
+    ResponseEntity is to be a part of controller because that is being exposed to client.
+     */
+
+    @Override
+    public PostDto postById(long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        return mapToDTO(post);
+    }
+
+    @Override
+    public PostDto updatePostById(PostDto postDto, long id) {
+
+        // get post by id
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+
+        post.setTitle(postDto.getTitle());
+        post.setDescription(postDto.getDescription());
+        post.setContent(postDto.getContent());
+
+        // update the post entity by saving
+        Post updatedPost = postRepository.save(post);
+
+        // return the postDTO after converting entity to DTO
+        return mapToDTO(updatedPost);
+    }
+
+    @Override
+    public void deletePostById(long id) {
+
+        // get post entity by id
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        postRepository.delete(post);
+    }
+
+    @Override
+    public void deleteAllPosts() {
+
+        // delete all posts
+        postRepository.deleteAll();
     }
 
     // converted entity to post
