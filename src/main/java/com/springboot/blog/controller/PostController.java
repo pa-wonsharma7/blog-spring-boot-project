@@ -13,6 +13,10 @@ import java.util.List;
 @RequestMapping("/blog/posts")
 public class PostController {
 
+    /*
+    When the class has only one constructor for another service or class then @Autowired annotation is
+    not required and automatically added by Spring-boot.
+     */
     private final PostService postService;
 
     public PostController(PostService postService) {

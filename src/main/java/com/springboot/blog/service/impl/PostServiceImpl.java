@@ -14,7 +14,10 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService {
 
-    @Autowired
+    /*
+    When the class has only one constructor for another service or class then @Autowired annotation is
+    not required and automatically added by Spring-boot.
+     */
     private PostRepository postRepository;
 
     public PostServiceImpl(PostRepository postRepository) {
