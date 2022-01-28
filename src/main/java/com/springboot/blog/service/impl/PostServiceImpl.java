@@ -3,8 +3,13 @@ package com.springboot.blog.service.impl;
 import com.springboot.blog.entity.Post;
 import com.springboot.blog.exception.ResourceNotFoundException;
 import com.springboot.blog.payload.PostDto;
+import com.springboot.blog.payload.PostResponse;
 import com.springboot.blog.repository.PostRepository;
 import com.springboot.blog.service.PostService;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +22,7 @@ public class PostServiceImpl implements PostService {
     When the class has only one constructor for another service or class then @Autowired annotation is
     not required and automatically added by Spring-boot.
      */
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
 
     public PostServiceImpl(PostRepository postRepository) {
         this.postRepository = postRepository;
@@ -40,9 +45,19 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> allPosts() {
-        List<Post> posts = postRepository.findAll();
-        return posts.stream().map(this::mapToDTO).collect(Collectors.toList());
+    public PostResponse allPosts(int pageNo, int pageSize) {
+        // create Pageable instance
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        // create a page
+        Page<Post> page = postRepository.findAll(pageable);
+
+        // get the contents of the page in a list
+        List<Post> posts = page.getContent();
+
+        // convert to dto and return
+        List<PostDto> content =  posts.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return makePostResponse(content, page);
     }
 
     /*
@@ -111,5 +126,16 @@ public class PostServiceImpl implements PostService {
         post.setContent(postDto.getContent());
         return post;
 
+    }
+
+    private PostResponse makePostResponse(List<PostDto> content, Page<Post> page) {
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(content);
+        postResponse.setPageNo(page.getNumber());
+        postResponse.setPageSize(page.getSize());
+        postResponse.setTotalPages(page.getTotalPages());
+        postResponse.setTotalElements(page.getTotalElements());
+        postResponse.setLast(page.isLast());
+        return postResponse;
     }
 }
