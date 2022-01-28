@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,9 +46,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse allPosts(int pageNo, int pageSize) {
+    public PostResponse allPosts(int pageNo, int pageSize, String sortBy, String sortDir) {
+        // if sortDir = asc then ascending or else descending
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
         // create Pageable instance
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
         // create a page
         Page<Post> page = postRepository.findAll(pageable);
@@ -128,6 +134,7 @@ public class PostServiceImpl implements PostService {
 
     }
 
+    // converts PostDto to PostResponse
     private PostResponse makePostResponse(List<PostDto> content, Page<Post> page) {
         PostResponse postResponse = new PostResponse();
         postResponse.setContent(content);
