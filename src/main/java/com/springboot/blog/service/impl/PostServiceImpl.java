@@ -6,7 +6,8 @@ import com.springboot.blog.payload.PostDto;
 import com.springboot.blog.payload.PostResponse;
 import com.springboot.blog.repository.PostRepository;
 import com.springboot.blog.service.PostService;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,8 @@ public class PostServiceImpl implements PostService {
     not required and automatically added by Spring-boot.
      */
     private final PostRepository postRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     public PostServiceImpl(PostRepository postRepository) {
         this.postRepository = postRepository;
@@ -112,26 +115,12 @@ public class PostServiceImpl implements PostService {
 
     // converted entity to post
     private PostDto mapToDTO(Post post) {
-
-        PostDto postDto = new PostDto();
-        postDto.setId(post.getId());
-        postDto.setTitle(post.getTitle());
-        postDto.setDescription(post.getDescription());
-        postDto.setContent(post.getContent());
-        return postDto;
-
+        return modelMapper.map(post, PostDto.class);
     }
 
     // converted DTO to entity
     private Post mapToEntity(PostDto postDto) {
-
-        Post post = new Post(); // Create a new entity Post and set all the fields
-        post.setId(postDto.getId());  // Where do we get the data to set all the fields? From the PostDto object
-        post.setTitle(postDto.getTitle());
-        post.setDescription(postDto.getDescription());
-        post.setContent(postDto.getContent());
-        return post;
-
+        return modelMapper.map(postDto, Post.class);
     }
 
     // converts PostDto to PostResponse
